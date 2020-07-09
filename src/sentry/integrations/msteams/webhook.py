@@ -52,10 +52,57 @@ class MsTeamsWebhookEndpoint(Endpoint):
                     absolute_uri("/extensions/msteams/configure/"),
                     signed_params,
                 )
-                # TODO: Better message
+                # TODO: Refactor message creation
+                # TODO: Tweak welcome message appearance to perfection
+                logo = {
+                    "type": "Image",
+                    "url": "https://sentry-brand.storage.googleapis.com/sentry-glyph-black.png",
+                    "size": "Medium",
+                }
+                welcome = {
+                    "type": "TextBlock",
+                    "weight": "Bolder",
+                    "size": "Large",
+                    "text": "Welcome to Sentry for Teams!",
+                    "wrap": True,
+                }
+                description = {
+                    "type": "TextBlock",
+                    "text": "The Sentry app for Teams allows you to be notified in real-time when an error pops up, using customizable alert rules.",
+                    "wrap": True,
+                }
+                instruction = {
+                    "type": "TextBlock",
+                    "text": "Please click [here](%s) to get started with using Sentry for Microsoft Teams."
+                    % url,
+                    "wrap": True,
+                }
+                card = {
+                    "type": "AdaptiveCard",
+                    "body": [
+                        {
+                            "type": "ColumnSet",
+                            "columns": [
+                                {"type": "Column", "items": [logo], "width": "auto"},
+                                {
+                                    "type": "Column",
+                                    "items": [welcome],
+                                    "width": "stretch",
+                                    "verticalContentAlignment": "Center",
+                                },
+                            ],
+                        },
+                        description,
+                        instruction,
+                    ],
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "version": "1.2",
+                }
                 payload = {
                     "type": "message",
-                    "text": url,
+                    "attachments": [
+                        {"contentType": "application/vnd.microsoft.card.adaptive", "content": card}
+                    ],
                 }
                 client.send_message(team_id, payload)
 
